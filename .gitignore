@@ -1,0 +1,23 @@
+# Environnement virtuel
+venv/
+.env
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Fichiers de développement PyCharm
+.idea/
+
+# Fichiers de développement VSCode
+.vscode/
+
+# Dossiers de distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Cache de différents outils et frameworks
+.cache/
+.pytest_cache/
+*.pyc
