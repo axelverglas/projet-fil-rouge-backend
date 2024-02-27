@@ -1,7 +1,7 @@
-from ...db import get_db
+from db import get_db
 
 class UserRepository:
-    def __init__(self, db):
+    def __init__(self):
         self.db = get_db()
 
     def create_user(self, user):

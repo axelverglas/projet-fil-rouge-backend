@@ -1,5 +1,5 @@
 from flask import Flask
-from .db import mongo
+from db import mongo
 from dotenv import load_dotenv
 import os
 from app.api.v1.routes.auth_routes import auth_blueprint

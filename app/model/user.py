@@ -6,8 +6,8 @@ class User:
         self.username = username
         self.email = email
         self.password = password
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow() 
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
         
     
     def to_json(self):
