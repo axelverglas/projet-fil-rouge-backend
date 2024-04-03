@@ -3,6 +3,7 @@ from datetime import datetime
 
 class User:
     def __init__(self, username, email, password):
+        self._id = ObjectId()
         self.username = username
         self.email = email
         self.password = password
@@ -12,10 +13,10 @@ class User:
     
     def to_json(self):
         user_json = {
-            "_id": ObjectId(),
+            "_id": str(self._id),
             "username": self.username,
             "email": self.email,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat()
         }
         return user_json

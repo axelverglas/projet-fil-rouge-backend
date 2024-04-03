@@ -1,6 +1,6 @@
 import pytest
-from app.service.auth_service import AuthService
-from app.model.user import User
+from src.service.auth_service import AuthService
+from src.model.user import User
 
 @pytest.fixture
 def mock_user_repository(mocker):

@@ -1,7 +1,6 @@
 from flask import request, jsonify, Blueprint
-from app.repository.user_repository import UserRepository
-from app.service.auth_service import AuthService
-
+from src.repository.user_repository import UserRepository
+from src.service.auth_service import AuthService
 
 user_repository = UserRepository()
 auth_service = AuthService(user_repository)
@@ -13,13 +12,14 @@ def register():
     data = request.get_json()
     try:
         user = auth_service.register_user(data['username'], data['email'], data['password'])
-        access_token, refresh_token = auth_service.generate_tokens(user['_id'])
+        access_token, refresh_token = auth_service.generate_tokens(str(user._id))
         user_data = user.to_json()
         return jsonify({
             "user": user_data,
             "access_token": access_token,
             "refresh_token": refresh_token
         }), 201
+        
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 

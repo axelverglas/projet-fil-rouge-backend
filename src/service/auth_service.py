@@ -1,5 +1,5 @@
 import bcrypt
-from app.model.user import User
+from src.model.user import User
 import jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -53,7 +53,7 @@ class AuthService:
             user_id = payload['user_id']
             new_access_token = jwt.encode({
                 'user_id': user_id,
-                'exp': datetime.utcnow() + timedelta(minutes=30)
+                'exp': datetime.now() + timedelta(minutes=30)
             }, secret_key, algorithm='HS256')
 
             return new_access_token
