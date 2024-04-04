@@ -16,6 +16,7 @@ class User:
             "_id": str(self._id),
             "username": self.username,
             "email": self.email,
+            "password": self.password,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat()
         }

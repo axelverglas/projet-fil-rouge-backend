@@ -15,25 +15,24 @@ class AuthService:
 
     def hash_password(self, password):
         salt = bcrypt.gensalt()
-        return bcrypt.hashpw(password.encode('utf-8'), salt)
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8')
 
     def verify_password(self, password, hashed):
-        return bcrypt.checkpw(password.encode('utf-8'), hashed)
-
-    def register_user(self, username, email, password):
-        if self.user_repository.find_user_by_email(email):
-            raise ValueError("Email already in use")
-        password_hashed = self.hash_password(password)
-        user = User(username, email, password_hashed)
-        return self.user_repository.create_user(user)
+        hashed_bytes = hashed.encode('utf-8')
+        return bcrypt.checkpw(password.encode('utf-8'), hashed_bytes)
 
     def authenticate_user(self, email, password):
         user_json = self.user_repository.find_user_by_email(email)
-        if user_json and self.verify_password(password, user_json['password']):
-            return user_json
+        if user_json is None:
+            print("No user found with the provided email.")
+            raise ValueError("No user found with the provided email.")
+        elif not self.verify_password(password, user_json['password']):
+            print("Invalid password.")
+            raise ValueError("Invalid password.")
         else:
-            raise ValueError("Invalid login credentials")
-        
+            return user_json
+
     def generate_tokens(self, user_id):
         access_token = jwt.encode({
             'user_id': str(user_id),

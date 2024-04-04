@@ -3,6 +3,7 @@ from db import mongo
 from dotenv import load_dotenv
 import os
 from src.api.v1.routes.auth_routes import auth_blueprint
+from src.api.v1.routes.user_routes import user_blueprint
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ def index():
 
 
 app.register_blueprint(auth_blueprint, url_prefix='/api/v1/auth')
+app.register_blueprint(user_blueprint, url_prefix='/api/v1/user')
 
 if __name__ == "__main__":
     app.run(debug=True)
