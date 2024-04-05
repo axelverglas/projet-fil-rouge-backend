@@ -31,9 +31,8 @@ class AuthService:
             print("Invalid password.")
             raise ValueError("Invalid password.")
         else:
-            user = User(user_data['username'], user_data['email'], user_data['password'], user_data.get('avatar', None))
-            user._id = user_data['_id']
-            return user
+            # Créez l'instance de User ici
+            return User.from_dict(user_data)
         
     def generate_tokens(self, user_id):
         access_token = jwt.encode({
@@ -55,26 +54,16 @@ class AuthService:
 
             user_data = self.user_repository.find_user_by_id(user_id)
             if not user_data:
-                ValueError("User not found")
+                raise ValueError("User not found")
 
-            new_access_token = jwt.encode({
-                'user_id': user_id,
-                'exp': datetime.utcnow() + timedelta(minutes=30)
-            }, secret_key, algorithm='HS256')
+            new_access_token, new_refresh_token = self.generate_tokens(user_id)
 
-            new_refresh_token = jwt.encode({
-                'user_id': user_id,
-                'exp': datetime.utcnow() + timedelta(days=7)
-            }, secret_key, algorithm='HS256')
+            user = User.from_dict(user_data)
 
+            user_json = user.to_json(include_avatar_url=True)
 
-            user = User(user_data['username'], user_data['email'], user_data['password'], user_data.get('avatar', None))
-            user._id = user_data['_id']
-
-            user_data = user.to_json(include_avatar_url=True)
-
-            return new_access_token, new_refresh_token, user_data
+            return new_access_token, new_refresh_token, user_json
         except jwt.ExpiredSignatureError:
-            return ValueError("Token expired")
+            raise ValueError("Refresh token expired. Please log in again.")
         except jwt.InvalidTokenError:
-            return ValueError("Invalid token")
+            raise ValueError("Invalid refresh token. Please log in again.")

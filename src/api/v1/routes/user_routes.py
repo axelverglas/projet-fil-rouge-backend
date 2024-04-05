@@ -34,7 +34,7 @@ def register():
 def get_user(user_id):
     user = user_service.get_user(str(user_id))
     if user:
-        return jsonify(user.to_json(include_avatar_url=True)), 200
+        return jsonify(user), 200
     return jsonify({"error": "User not found"}), 404
 
 @user_blueprint.route('/<user_id>/avatar', methods=['POST'])

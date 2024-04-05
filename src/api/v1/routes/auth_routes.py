@@ -11,10 +11,13 @@ auth_blueprint = Blueprint('auth', __name__)
 def login():
     data = request.get_json()
     try:
+        # user est maintenant une instance de User, pas un JSON
         user = auth_service.authenticate_user(data['email'], data['password'])
-        access_token, refresh_token = auth_service.generate_tokens(user._id)
+        access_token, refresh_token = auth_service.generate_tokens(str(user._id))
+        # Convertissez l'instance User en JSON ici
+        user_json = user.to_json(include_avatar_url=True)
         return jsonify({
-            "user": user.to_json(include_avatar_url=True),
+            "user": user_json,
             "access_token": access_token,
             "refresh_token": refresh_token
         }), 200
