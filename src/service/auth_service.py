@@ -1,5 +1,4 @@
 import bcrypt
-from src.model.user import User
 import jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
