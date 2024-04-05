@@ -32,9 +32,9 @@ def register():
 
 @user_blueprint.route('/<user_id>', methods=['GET'])
 def get_user(user_id):
-    user = user_service.get_user(user_id)
+    user = user_service.get_user(str(user_id))
     if user:
-        return jsonify(user), 200
+        return jsonify(user.to_json(include_avatar_url=True)), 200
     return jsonify({"error": "User not found"}), 404
 
 @user_blueprint.route('/<user_id>/avatar', methods=['POST'])
@@ -46,7 +46,7 @@ def update_profile(user_id):
         return jsonify({"error": "No selected file"}), 400
     if file:
         image = Image.open(file.stream)
-        webp_filename = f"{uuid.uuid4()}.webp"
+        webp_filename = f"avatars/{uuid.uuid4()}.webp"
         in_mem_file = io.BytesIO()
         image.save(in_mem_file, format='WebP')
         in_mem_file.seek(0)

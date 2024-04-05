@@ -12,9 +12,9 @@ def login():
     data = request.get_json()
     try:
         user = auth_service.authenticate_user(data['email'], data['password'])
-        access_token, refresh_token = auth_service.generate_tokens(user['_id'])
+        access_token, refresh_token = auth_service.generate_tokens(user._id)
         return jsonify({
-            "user": user,
+            "user": user.to_json(include_avatar_url=True),
             "access_token": access_token,
             "refresh_token": refresh_token
         }), 200
@@ -25,7 +25,11 @@ def login():
 def refresh_token():
     data = request.get_json()
     try:
-        new_access_token = auth_service.refresh_access_token(data['refresh_token'])
-        return jsonify({"access_token": new_access_token}), 200
+        new_access_token, new_refresh_token, user_data = auth_service.refresh_access_token(data['refresh_token'])
+        return jsonify({
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "user": user_data
+        }), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 401
