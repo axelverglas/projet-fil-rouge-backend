@@ -3,10 +3,10 @@ from src.repository.user_repository import UserRepository
 from src.service.auth_service import AuthService
 from src.service.upload_service import UploadService
 from src.service.user_service import UserService
+from src.decorators.token_required import token_required
 import uuid
 import io
 from PIL import Image
-
 
 user_repository = UserRepository()
 auth_service = AuthService(user_repository)
@@ -31,6 +31,7 @@ def register():
         return jsonify({"error": str(e)}), 400
 
 @user_blueprint.route('/<user_id>', methods=['GET'])
+@token_required
 def get_user(user_id):
     user = user_service.get_user(str(user_id))
     if user:
@@ -38,6 +39,7 @@ def get_user(user_id):
     return jsonify({"error": "User not found"}), 404
 
 @user_blueprint.route('/<user_id>/avatar', methods=['POST'])
+@token_required
 def update_profile(user_id):
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400

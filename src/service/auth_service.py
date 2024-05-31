@@ -27,12 +27,10 @@ class AuthService:
         user_data = self.user_repository.find_user_by_email(email)
         if user_data is None:
             raise ValueError("No user found with the provided email.")
-        elif not self.verify_password(password, user_data['password']):
-            print("Invalid password.")
+        elif not self.verify_password(password, user_data.password):
             raise ValueError("Invalid password.")
         else:
-            # Créez l'instance de User ici
-            return User.from_dict(user_data)
+            return user_data
         
     def generate_tokens(self, user_id):
         access_token = jwt.encode({
