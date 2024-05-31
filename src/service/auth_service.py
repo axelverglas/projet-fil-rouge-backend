@@ -1,9 +1,10 @@
 import bcrypt
-from src.model.user import User
 import jwt
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
+
+from src.model.user import User
 
 load_dotenv()
 
@@ -15,24 +16,23 @@ class AuthService:
 
     def hash_password(self, password):
         salt = bcrypt.gensalt()
-        return bcrypt.hashpw(password.encode('utf-8'), salt)
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        return hashed.decode('utf-8')
 
     def verify_password(self, password, hashed):
-        return bcrypt.checkpw(password.encode('utf-8'), hashed)
-
-    def register_user(self, username, email, password):
-        if self.user_repository.find_user_by_email(email):
-            raise ValueError("Email already in use")
-        password_hashed = self.hash_password(password)
-        user = User(username, email, password_hashed)
-        return self.user_repository.create_user(user)
+        hashed_bytes = hashed.encode('utf-8')
+        return bcrypt.checkpw(password.encode('utf-8'), hashed_bytes)
 
     def authenticate_user(self, email, password):
-        user_json = self.user_repository.find_user_by_email(email)
-        if user_json and self.verify_password(password, user_json['password']):
-            return user_json
+        user_data = self.user_repository.find_user_by_email(email)
+        if user_data is None:
+            raise ValueError("No user found with the provided email.")
+        elif not self.verify_password(password, user_data['password']):
+            print("Invalid password.")
+            raise ValueError("Invalid password.")
         else:
-            raise ValueError("Invalid login credentials")
+            # Créez l'instance de User ici
+            return User.from_dict(user_data)
         
     def generate_tokens(self, user_id):
         access_token = jwt.encode({
@@ -51,12 +51,18 @@ class AuthService:
         try:
             payload = jwt.decode(refresh_token, secret_key, algorithms=['HS256'])
             user_id = payload['user_id']
-            new_access_token = jwt.encode({
-                'user_id': user_id,
-                'exp': datetime.now() + timedelta(minutes=30)
-            }, secret_key, algorithm='HS256')
 
-            return new_access_token
+            user_data = self.user_repository.find_user_by_id(user_id)
+            if not user_data:
+                raise ValueError("User not found")
+
+            new_access_token, new_refresh_token = self.generate_tokens(user_id)
+
+            user = User.from_dict(user_data)
+
+            user_json = user.to_json(include_avatar_url=True)
+
+            return new_access_token, new_refresh_token, user_json
         except jwt.ExpiredSignatureError:
             raise ValueError("Refresh token expired. Please log in again.")
         except jwt.InvalidTokenError:
