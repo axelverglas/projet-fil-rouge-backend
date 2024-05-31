@@ -25,7 +25,7 @@ class User:
             _id=data['_id']
         )
 
-    def to_json(self, include_avatar_url=False):
+    def to_json(self, include_password=False, include_avatar_url=False):
         user_json = {
             "_id": str(self._id),
             "username": self.username,
@@ -33,6 +33,8 @@ class User:
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
+        if include_password:
+            user_json['password'] = self.password
         if self.avatar and include_avatar_url:
             user_json['avatar_url'] = upload_service.get_file_url(f"{self.avatar}")
         return user_json
