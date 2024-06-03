@@ -65,3 +65,27 @@ def are_friends():
         return jsonify(friendship_status), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+@friendship_blueprint.route('/<user_id>/sent-requests', methods=['GET'])
+@token_required
+def get_sent_requests(user_id):
+    try:
+        sent_requests = friendship_service.get_sent_requests(user_id)
+        return jsonify([{
+            "request": request.to_dict(),
+            "user": user_repository.find_user_by_id(request.receiver_id)
+        } for request in sent_requests]), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+@friendship_blueprint.route('/<user_id>/received-requests', methods=['GET'])
+@token_required
+def get_received_requests(user_id):
+    try:
+        received_requests = friendship_service.get_received_requests(user_id)
+        return jsonify([{
+            "request": request.to_dict(),
+            "user": user_repository.find_user_by_id(request.creator_id)
+        } for request in received_requests]), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400

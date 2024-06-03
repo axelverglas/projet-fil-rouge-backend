@@ -34,3 +34,9 @@ class FriendshipService:
 
     def get_friends(self, user_id):
         return self.friendship_repository.get_friends(user_id)
+
+    def get_sent_requests(self, user_id):
+        return self.friendship_repository.get_sent_requests(user_id)
+
+    def get_received_requests(self, user_id):
+        return self.friendship_repository.get_received_requests(user_id)
