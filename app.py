@@ -7,7 +7,11 @@ from src.api.v1.routes.user_routes import user_blueprint
 from flask_cors import CORS
 from src.socket_events import socketio
 from src.api.v1.routes.game_routes import games_bp
+from src.api.v1.routes.friendship_routes import friendship_blueprint
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -17,7 +21,9 @@ socketio.init_app(app, cors_allowed_origins="*")
 
 # Configuration de la base de données MongoDB
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+logger.debug(f"MONGO_URI: {app.config['MONGO_URI']}")
 mongo.init_app(app)
+logger.debug(f"MongoDB initialized: {mongo.db}")
 
 @app.route('/')
 def index():
@@ -27,6 +33,7 @@ socketio.init_app(app, cors_allowed_origins="*")
 
 app.register_blueprint(auth_blueprint, url_prefix='/api/v1/auth')
 app.register_blueprint(user_blueprint, url_prefix='/api/v1/user')
+app.register_blueprint(friendship_blueprint, url_prefix='/api/v1/friendships')
 app.register_blueprint(games_bp, url_prefix='/api/v1/games')
 
 if __name__ == "__main__":

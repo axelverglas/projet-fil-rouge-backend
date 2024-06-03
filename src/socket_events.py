@@ -6,7 +6,6 @@ from src.repository.game_repository import GameRepository
 game_repository = GameRepository()
 game_service = GameService(game_repository)
 
-
 socketio = SocketIO()
 
 @socketio.on('join_game')
@@ -28,7 +27,6 @@ def on_join_game(data):
         print(f"Error retrieving game: {e}")
         return False, str(e)
 
-
 @socketio.on('make_move')
 def on_make_move(data):
     print(data)
@@ -47,11 +45,18 @@ def on_make_move(data):
     except ValueError as e:
         emit('error', {'message': str(e)}, room=game_id)
 
-
 @socketio.on('leave_game')
 def on_leave_game(data):
     user_id = data.get('user_id')
     game_id = data.get('game_id')
     print(f"User {user_id} leaving game {game_id}")
     leave_room(game_id)
-    socketio.emit('left_game', {'message': 'You have left the game'}, room=user_id)
+    try:
+        game = game_service.get_game(game_id)
+        if game.state != 'finished':
+            game.state = 'paused'
+            game_service.update_game(game)
+        opponent_id = game.player1_id if game.player2_id == user_id else game.player2_id
+        socketio.emit('left_game', {'message': f"L'utilisateur {user_id} a quitté la partie"}, room=opponent_id)
+    except ValueError as e:
+        print(f"Error updating game: {e}")
