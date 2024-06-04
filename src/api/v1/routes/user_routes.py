@@ -29,7 +29,19 @@ def register():
         }), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-
+    
+@user_blueprint.route('/username/<username>', methods=['GET'])
+@token_required
+def get_user_by_username(username):
+    try:
+        user = user_service.find_user_by_username(username)
+        if user:
+            return jsonify(user), 200
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    
 @user_blueprint.route('/<user_id>', methods=['GET'])
 @token_required
 def get_user(user_id):
