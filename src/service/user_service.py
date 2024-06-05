@@ -32,3 +32,7 @@ class UserService:
         if not user:
             raise ValueError("User not found")
         return self.user_repository.update_user_avatar(user_id, avatar_file_name)
+    
+    def delete_old_avatar(self, avatar_file_name):
+        if avatar_file_name:
+            self.upload_service.delete_file(avatar_file_name)

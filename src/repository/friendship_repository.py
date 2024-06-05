@@ -34,8 +34,10 @@ class FriendshipRepository:
 
     def get_friends(self, user_id):
         friendships = mongo.db.friendships.find({
-            "creator_id": user_id,
-            "status": "accepted"
+            "$or": [
+                {"creator_id": user_id, "status": "accepted"},
+                {"receiver_id": user_id, "status": "accepted"}
+            ]
         })
         return [Friendship.from_dict(friendship) for friendship in friendships]
 

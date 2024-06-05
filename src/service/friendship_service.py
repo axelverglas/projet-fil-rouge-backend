@@ -35,10 +35,14 @@ class FriendshipService:
         return {"areFriends": False, "status": None}
     
     def get_friends(self, user_id):
-            friends = self.friendship_repository.get_friends(user_id)
-            for friend in friends:
+        friends = self.friendship_repository.get_friends(user_id)
+        for friend in friends:
+            if friend.creator_id == user_id:
                 friend.user = self.user_repository.find_user_by_id(friend.receiver_id)
-            return [friend.to_dict() for friend in friends]
+            else:
+                friend.user = self.user_repository.find_user_by_id(friend.creator_id)
+        friends_dict = [friend.to_dict() for friend in friends]
+        return friends_dict
     
     def get_sent_requests(self, user_id):
         return self.friendship_repository.get_sent_requests(user_id)

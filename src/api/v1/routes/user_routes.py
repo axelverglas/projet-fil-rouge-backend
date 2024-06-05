@@ -6,7 +6,8 @@ from src.service.user_service import UserService
 from src.decorators.token_required import token_required
 import uuid
 import io
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+
 
 user_repository = UserRepository()
 auth_service = AuthService(user_repository)
@@ -52,25 +53,38 @@ def get_user(user_id):
 
 @user_blueprint.route('/<user_id>/avatar', methods=['POST'])
 @token_required
-def update_profile(user_id):
+def update_profile(user_id):    
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
+    
     file = request.files['file']
+    
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
-    if file:
-        image = Image.open(file.stream)
-        webp_filename = f"avatars/{uuid.uuid4()}.webp"
-        in_mem_file = io.BytesIO()
-        image.save(in_mem_file, format='WebP')
-        in_mem_file.seek(0)
+    
+    if file and file.content_type.startswith('image/'):
+        try:
+            image = Image.open(file.stream)
+            webp_filename = f"avatars/{uuid.uuid4()}.webp"
+            in_mem_file = io.BytesIO()
+            image.save(in_mem_file, format='WebP')
+            in_mem_file.seek(0)
 
-        success = upload_service.upload_file(webp_filename, in_mem_file)
-        if success:
-            try:
-                user_service.update_user_avatar(user_id, webp_filename)
-                return jsonify({"message": "Profile updated successfully", "filename": webp_filename}), 200
-            except ValueError as e:
-                return jsonify({"error": str(e)}), 404
-        else:
-            return jsonify({"error": "Upload failed"}), 500
+            success = upload_service.upload_file(webp_filename, in_mem_file)
+            if success:
+                try:
+                    user = user_repository.find_user_by_id(user_id)
+                    if user and user.get('avatar'):
+                        old_avatar = user['avatar']
+                        upload_service.delete_file(old_avatar)
+                    
+                    user_service.update_user_avatar(user_id, webp_filename)
+                    return jsonify({"message": "Profile updated successfully", "filename": webp_filename}), 200
+                except ValueError as e:
+                    return jsonify({"error": str(e)}), 404
+            else:
+                return jsonify({"error": "Upload failed"}), 500
+        except UnidentifiedImageError:
+            return jsonify({"error": "Invalid image file"}), 400
+    else:
+        return jsonify({"error": "File is not an image"}), 400
