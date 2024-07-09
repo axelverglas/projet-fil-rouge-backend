@@ -1,7 +1,5 @@
 from db import mongo
 
-from bson import ObjectId
-
 class GameRepository:
     def create_game(self, game):
         game_json = game.to_json()
@@ -9,6 +7,9 @@ class GameRepository:
         game_id = mongo.db.games.insert_one(game_json).inserted_id
         print(f"Game created with ID: {game_id}")
         return str(game_id)
+    
+    def find_one(self, query):
+        return mongo.db.games.find_one(query)
 
     def find_game_by_id(self, game_id):
         try:

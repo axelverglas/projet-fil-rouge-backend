@@ -1,5 +1,4 @@
-from flask_socketio import SocketIO, join_room, leave_room
-from flask_socketio import emit
+from flask_socketio import SocketIO, join_room, leave_room, emit
 from src.service.game_service import GameService
 from src.repository.game_repository import GameRepository
 
@@ -12,13 +11,14 @@ socketio = SocketIO()
 def on_join_game(data):
     user_id = data.get('user_id')
     game_id = data.get('game_id')
-    if not user_id or not game_id:
-        return False, "user_id and game_id are required"
+    game_type = data.get('game_type')
+    if not user_id or not game_id or not game_type:
+        return False, "user_id, game_id, and game_type are required"
 
     print(f"User {user_id} joining game {game_id}")
     join_room(game_id)
     try:
-        game = game_service.get_game(game_id)
+        game = game_service.get_game(game_id, game_type)
         if game.player1_id == user_id or game.player2_id == user_id:
             socketio.emit('game_start', {'game_id': game_id}, room=game_id)
         else:
@@ -33,30 +33,15 @@ def on_make_move(data):
     game_id = data.get('game_id')
     player_id = data.get('player_id')
     move = data.get('move')
+    game_type = data.get('game_type')
 
-    if not all([game_id, player_id, move is not None]):
-        emit('error', {'message': 'Missing game_id, player_id, or move'})
+    if not all([game_id, player_id, move is not None, game_type]):
+        emit('error', {'message': 'Missing game_id, player_id, move, or game_type'})
         return
 
     try:
         move = int(move)
-        game = game_service.make_move(game_id, player_id, move)
+        game = game_service.make_move(game_id, player_id, move, game_type)
         emit('game_update', game.to_json(), room=game_id)
     except ValueError as e:
         emit('error', {'message': str(e)}, room=game_id)
-
-@socketio.on('leave_game')
-def on_leave_game(data):
-    user_id = data.get('user_id')
-    game_id = data.get('game_id')
-    print(f"User {user_id} leaving game {game_id}")
-    leave_room(game_id)
-    try:
-        game = game_service.get_game(game_id)
-        if game.state != 'finished':
-            game.state = 'paused'
-            game_service.update_game(game)
-        opponent_id = game.player1_id if game.player2_id == user_id else game.player2_id
-        socketio.emit('left_game', {'message': f"L'utilisateur {user_id} a quitté la partie"}, room=opponent_id)
-    except ValueError as e:
-        print(f"Error updating game: {e}")
