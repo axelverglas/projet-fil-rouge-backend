@@ -34,12 +34,13 @@ def test_find_or_create_game_existing_opponent(queue_service, mock_queue_reposit
     opponent_id = "user2"
     game_type = "tictactoe"
     game_id = "game1"
+    mock_game = MagicMock()  # Utilisez un mock d'objet de jeu complet
     
     # Configure mock to return an existing opponent
     mock_queue_repository.get_next_player.return_value = opponent_id
-    mock_game_service.create_game.return_value = game_id
+    mock_game_service.create_game.return_value = mock_game  # Retourne l'objet de jeu
 
     result = queue_service.find_or_create_game(user_id, game_type)
 
-    assert result == (game_id, opponent_id)
-    mock_game_service.create_game.assert_called_once_with(opponent_id, user_id)
+    assert result == (mock_game._id, opponent_id)  # Utilisez l'ID de l'objet de jeu
+    mock_game_service.create_game.assert_called_once_with(opponent_id, user_id, game_type)
