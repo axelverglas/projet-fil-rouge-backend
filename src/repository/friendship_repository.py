@@ -1,10 +1,6 @@
 from db import mongo
 from src.model.friendship import Friendship
-from bson import ObjectId
-import logging
-from pymongo import ReturnDocument
 
-logger = logging.getLogger(__name__)
 
 class FriendshipRepository:
     def create_friend_request(self, request):
@@ -56,7 +52,6 @@ class FriendshipRepository:
         return [Friendship.from_dict(request) for request in requests]
     
     def delete_friendship(self, creator_id, receiver_id):
-        logger.debug(f"Deleting friendship in DB: creator_id={creator_id}, receiver_id={receiver_id}")
         return mongo.db.friendships.delete_one({
             "creator_id": creator_id,
             "receiver_id": receiver_id

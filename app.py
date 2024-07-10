@@ -8,6 +8,8 @@ from flask_cors import CORS
 from src.socket_events import socketio
 from src.api.v1.routes.game_routes import games_bp
 from src.api.v1.routes.friendship_routes import friendship_blueprint
+from src.api.v1.routes.chat_routes import chat_bp
+from src.api.v1.routes.notification_route import notification_bp
 import logging
 import certifi
 
@@ -26,9 +28,7 @@ mongo_uri = (
     f"@{os.getenv('MONGO_PATH')}/{os.getenv('MONGO_DB')}?retryWrites=true&w=majority&tls=true&tlsCAFile={certifi.where()}"
 )
 app.config["MONGO_URI"] = mongo_uri
-logger.debug(f"MONGO_URI: {app.config['MONGO_URI']}")
 mongo.init_app(app)
-logger.debug(f"MongoDB initialized: {mongo.db}")
 
 @app.route('/')
 def index():
@@ -41,6 +41,8 @@ app.register_blueprint(auth_blueprint, url_prefix='/api/v1/auth')
 app.register_blueprint(user_blueprint, url_prefix='/api/v1/user')
 app.register_blueprint(friendship_blueprint, url_prefix='/api/v1/friendships')
 app.register_blueprint(games_bp, url_prefix='/api/v1/games')
+app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+app.register_blueprint(notification_bp, url_prefix='/api/v1/notifications')
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

@@ -1,11 +1,45 @@
 from flask_socketio import SocketIO, join_room, leave_room, emit
+from src.repository.user_repository import UserRepository
+from src.service.notification_service import NotificationService
 from src.service.game_service import GameService
 from src.repository.game_repository import GameRepository
+from src.service.chat_service import ChatService
+from src.repository.chat_repository import ChatRepository
+from src.repository.notification_repository import NotificationRepository
 
+chat_repository = ChatRepository()
+notification_repository =  NotificationRepository()
+user_repository = UserRepository()
+chat_service = ChatService(chat_repository, notification_repository, user_repository)
 game_repository = GameRepository()
 game_service = GameService(game_repository)
 
 socketio = SocketIO()
+
+@socketio.on('join_conversation')
+def on_join_conversation(data):
+    user1_id = data.get('user1_id')
+    user2_id = data.get('user2_id')
+
+    # Check if both user IDs are provided
+    if not user1_id or not user2_id:
+        return emit('error', {'message': 'user1_id and user2_id are required'})
+
+    # Check if the conversation exists, if not create it
+    conversation = chat_service.get_conversation(user1_id, user2_id)
+    conversation_id = conversation._id
+
+    # Join the room associated with the conversation
+    join_room(conversation_id)
+
+    emit('conversation_joined', {'conversation_id': conversation_id})
+
+@socketio.on('new_message')
+def on_new_message(data):
+    message = chat_service.send_message(data['sender_id'], data['receiver_id'], data['content'], data['conversation_id'])
+    emit('new_message', message.to_json(), room=data['conversation_id'])
+
+    NotificationService.create_notification(data['receiver_id'], 'Tu as un nouveau message !')
 
 @socketio.on('join_game')
 def on_join_game(data):

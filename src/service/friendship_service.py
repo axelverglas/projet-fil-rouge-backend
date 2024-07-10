@@ -24,14 +24,25 @@ class FriendshipService:
         friendship.status = 'accepted'
         self.friendship_repository.update_friend_request(friendship)
         return friendship
-
+    
     def are_friends(self, creator_id, receiver_id):
+        # Check if a friendship already exists in either direction
         friendship = self.friendship_repository.find_friendship(creator_id, receiver_id)
         if friendship:
             return {"areFriends": True, "status": friendship['status']}
+        friendship = self.friendship_repository.find_friendship(receiver_id, creator_id)
+        if friendship:
+            return {"areFriends": True, "status": friendship['status']}
+        
+        # Check if a friend request has been sent in either direction
         friend_request = self.friendship_repository.find_friend_request(creator_id, receiver_id)
         if friend_request:
             return {"areFriends": False, "status": friend_request['status']}
+        friend_request = self.friendship_repository.find_friend_request(receiver_id, creator_id)
+        if friend_request:
+            return {"areFriends": False, "status": friend_request['status']}
+        
+        # No friendship or request exists
         return {"areFriends": False, "status": None}
     
     def get_friends(self, user_id):
