@@ -1,9 +1,10 @@
-name: Deploy to Server 🚀
+name: Build, Test, and Deploy 🚀
 
 on:
   push:
     branches:
       - main
+      - "feature/*"
 
 jobs:
   build-and-deploy:
@@ -13,14 +14,24 @@ jobs:
       - name: Checkout Code 📥
         uses: actions/checkout@v3
 
+      - name: Set up Python 🐍
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Dependencies 📦
+        run: pip install -r requirements.txt
+
+      - name: Run Tests 🧪
+        run: pytest --cov
+
       - name: Log in to Docker Hub 🔐
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Build Docker Image 🛠️
-        run: docker build -t axelvrgls/playsphere-api:latest .
-
-      - name: Push Docker Image 📤
-        run: docker push axelvrgls/playsphere-api:latest
+      - name: Build and Push Docker Image 🛠️📤
+        run: |
+          docker build -t axelvrgls/playsphere-api:latest .
+          docker push axelvrgls/playsphere-api:latest
 
       - name: Deploy to Server 🚀
         uses: appleboy/ssh-action@master
