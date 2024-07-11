@@ -8,9 +8,6 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Installez Gunicorn
-RUN pip install gunicorn
-
 # Copiez tout le reste du projet dans le conteneur
 COPY . .
 
@@ -18,5 +15,5 @@ COPY . .
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 
-# Définissez la commande par défaut pour exécuter votre application avec Gunicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+# Définissez la commande par défaut pour exécuter votre application
+CMD ["flask", "run", "--host=0.0.0.0"]
