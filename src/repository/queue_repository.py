@@ -2,17 +2,11 @@ class QueueRepository:
     def __init__(self):
         self.queues = {}
 
-    def find_one(self, query):
-        game_type = query.get('game_type')
-        user_id = query.get('user_id')
-        for player in self.queues.get(game_type, []):
-            if player != user_id:
-                return {'user_id': player, 'game_type': game_type}
-        return None
-
-    def get_next_player(self, game_type):
-        if game_type in self.queues and self.queues[game_type]:
-            return self.queues[game_type].pop(0)
+    def get_next_player(self, game_type, exclude_user_id):
+        if game_type in self.queues:
+            for i, user_id in enumerate(self.queues[game_type]):
+                if user_id != exclude_user_id:
+                    return self.queues[game_type].pop(i)
         return None
 
     def add_to_queue(self, user_id, game_type):
