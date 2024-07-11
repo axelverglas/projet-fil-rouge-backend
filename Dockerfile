@@ -1,18 +1,15 @@
-# Utilisez une image de base officielle de Python
+# Utilisez une image Python comme base
 FROM python:3.10-slim
 
-# Définir le répertoire de travail
+# Définissez le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers requirements.txt et installer les dépendances
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Copiez le fichier requirements.txt et installez les dépendances
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copier le reste du code de l'application
+# Copiez tout le reste du projet dans le conteneur
 COPY . .
-
-# Exposer le port sur lequel l'application sera disponible
-EXPOSE 5000
 
 # Définissez les variables d'environnement nécessaires
 ENV FLASK_APP=app.py
