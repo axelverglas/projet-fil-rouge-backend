@@ -51,6 +51,11 @@ def test_find_or_create_game_existing_opponent(queue_service, mock_queue_reposit
 
     result = queue_service.find_or_create_game(user_id, game_type)
 
-    assert result == (mock_game._id, opponent_id)
-    mock_game_service.create_game.assert_called_once_with(user_id, opponent_id, game_type)
-    mock_queue_repository.delete_one.assert_called_once_with({'_id': opponent['_id']})
+    assert result == (mock_game._id, opponent['user_id'])
+    
+    # Debugging output
+    print(f"Expected call: create_game({user_id}, {opponent['user_id']}, {game_type})")
+    print(f"Actual calls: {mock_game_service.create_game.mock_calls}")
+    
+    mock_game_service.create_game.assert_called_once_with(user_id, opponent['user_id'], game_type)
+    mock_queue_repository.delete_one.assert_called_once_with({'user_id': opponent['user_id'], 'game_type': game_type})
