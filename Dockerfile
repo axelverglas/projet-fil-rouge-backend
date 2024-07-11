@@ -19,4 +19,4 @@ ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 
 # Définissez la commande par défaut pour exécuter votre application avec Gunicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:80", "app:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
