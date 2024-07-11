@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect
 from db import mongo
 from dotenv import load_dotenv
 import os
@@ -32,7 +32,7 @@ mongo.init_app(app)
 
 @app.route('/')
 def index():
-    return "Hello World"
+    return redirect("https://playverse.fr")
     
 
 socketio.init_app(app, cors_allowed_origins="*")

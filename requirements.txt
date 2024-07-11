@@ -35,5 +35,6 @@ s3transfer==0.10.2
 simple-websocket==1.0.0
 six==1.16.0
 urllib3==2.2.2
+uWSGI==2.0.26
 Werkzeug==3.0.3
 wsproto==1.2.0
