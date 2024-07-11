@@ -31,8 +31,7 @@ class ChatService:
             # Create a notification for the receiver
             notification_content = f"Nouveau message de {sender_name}"
             notif_type = 'chat'  # Définir le type de notification ici
-            self.notification_repository.create_notification(receiver_id, notification_content, notif_type)
-
+            self.notification_repository.create_notification(receiver_id, notification_content, notif_type, sender_id)
 
             return message
         except Exception as e:

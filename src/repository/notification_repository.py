@@ -3,9 +3,9 @@ from db import mongo
 from src.model.notification import Notification
 
 class NotificationRepository:
-    def create_notification(self, user_id, content, notif_type):
-        logging.info(f"Creating notification for user_id: {user_id} with content: '{content}' and type: '{notif_type}'")
-        notification = Notification(user_id=user_id, content=content, notif_type=notif_type)
+    def create_notification(self, user_id, content, notif_type, sender_id):
+        logging.info(f"Creating notification for user_id: {user_id} with content: '{content}' and type: '{notif_type}' from sender_id: {sender_id}")
+        notification = Notification(user_id=user_id, content=content, notif_type=notif_type, sender_id=sender_id)
         mongo.db.notifications.insert_one(notification.to_json())
         return notification
 

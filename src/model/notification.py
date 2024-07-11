@@ -2,9 +2,10 @@ from datetime import datetime
 from bson import ObjectId
 
 class Notification:
-    def __init__(self, user_id, content, notif_type="general", read=False, created_at=None, _id=None):
+    def __init__(self, user_id, content, sender_id, notif_type="general", read=False, created_at=None, _id=None):
         self._id = _id or ObjectId()
         self.user_id = user_id
+        self.sender_id = sender_id
         self.content = content
         self.notif_type = notif_type
         self.read = read
@@ -17,17 +18,19 @@ class Notification:
             created_at = datetime.fromisoformat(created_at)
         return cls(
             user_id=data['user_id'],
+            sender_id=data['sender_id'],
             content=data['content'],
             notif_type=data.get('notif_type', 'general'),
             read=data.get('read', False),
             created_at=created_at,
-            _id=data['_id']
+            _id=ObjectId(data['_id'])
         )
 
     def to_json(self):
         return {
             "_id": str(self._id),
             "user_id": self.user_id,
+            "sender_id": self.sender_id,
             "content": self.content,
             "notif_type": self.notif_type,
             "read": self.read,
