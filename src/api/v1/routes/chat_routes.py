@@ -18,7 +18,7 @@ def get_conversation(user1_id, user2_id):
     if conversation:
         return jsonify(conversation.to_json()), 200
     else:
-        return jsonify({'error': 'Conversation not found'}), 404
+        return jsonify({'error': 'Conversation introuvable !'}), 404
 
 @chat_bp.route('/messages', methods=['POST'])
 def send_message():

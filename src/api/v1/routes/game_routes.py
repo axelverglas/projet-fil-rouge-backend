@@ -90,8 +90,8 @@ def pause_game(game_type, game_id):
         if game.state != 'finished':
             game.state = 'paused'
             game_service.update_game(game)
-            return jsonify({"message": "Game paused"}), 200
-        return jsonify({"error": "Game already finished"}), 400
+            return jsonify({"message": "Jeu en pause !"}), 200
+        return jsonify({"error": "Jeu déjà fini"}), 400
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
@@ -103,7 +103,7 @@ def finish_game(game_type, game_id):
         if game.state != 'finished':
             game.state = 'finished'
             game_service.update_game(game)
-            return jsonify({"message": "Game finished"}), 200
+            return jsonify({"message": "Jeu fini"}), 200
         return jsonify({"error": "Game already finished"}), 400
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
